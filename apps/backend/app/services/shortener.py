@@ -7,12 +7,13 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db.models import URL
+from app.core.config import settings
 
 # Base62 alphabet
 _ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 _BASE = len(_ALPHABET)
 # Secret key for obfuscating sequential IDs
-_SECRET_KEY = 0xA3F5C2  # keep private
+_SECRET_KEY = int(settings.SECRET_KEY_FOR_SIGNING_SHORTURL, 16)   # keep private
 
 
 def encode_base62(num: int) -> str:

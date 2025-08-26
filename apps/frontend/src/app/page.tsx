@@ -6,10 +6,23 @@ import { useState } from 'react';
 export default function Home() {
   const [longUrl, setLongUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleShorten = async () => {
+    setError('');
+    setIsLoading(true);
+
+    // if (!longUrl || !longUrl.startsWith('http')) {
+    //     setError('Please enter a valid URL (e.g., https://...)');
+    //     setIsLoading(false);
+    //     return;
+    // }
+
+    try {
     // Example placeholder, replace with your FastAPI endpoint
-    const response = await fetch('http://localhost:8000/shorten/', {
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const response = await fetch(`${apiUrl}/shorten/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(
@@ -19,8 +32,21 @@ export default function Home() {
       ),
     });
 
+    if (!response.ok) {
+        throw new Error('Failed to shorten URL. Please try again.');
+      }
+
     const data = await response.json();
-    setShortUrl(data.short_url);
+
+    const userFacingUrl = `${window.location.origin}/${data.short_code}`;
+      setShortUrl(userFacingUrl);
+
+    } catch (err: any) {
+        setError(err.message || 'An unknown error occurred.');
+        setShortUrl(''); // Clear previous short URL on error
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (

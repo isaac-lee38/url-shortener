@@ -1,0 +1,26 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Git
+.git/
+
+
+# Turborepo cache
+.turbo/
+dist/
+
+# Environment files (don’t bake secrets into image)
+.env
+.env.*
+
+# IDE/editor files
+.vscode/
+.idea/

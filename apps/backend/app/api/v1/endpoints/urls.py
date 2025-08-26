@@ -15,7 +15,7 @@ class URLShortenRequest(BaseModel):
 @router.post("/shorten")
 async def shorten_url(request: URLShortenRequest, db: AsyncSession = Depends(get_db)):
     code = await create_short_url(db, request.long_url)
-    return {"short_url": f"{settings.BASE_URL}/{code}"}
+    return {"short_code": code} 
 
 @router.get("/{code}")
 async def redirect(code: str, db: AsyncSession = Depends(get_db)):
