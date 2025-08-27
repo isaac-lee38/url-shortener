@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 export default async function RedirectPage({ params }: { params: { code: string } }) {
-  const { code } = await params;
+  const { code } = params;
 
   if (!code) {
     redirect('/');
