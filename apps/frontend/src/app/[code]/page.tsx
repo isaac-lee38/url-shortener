@@ -1,15 +1,9 @@
 // src/app/[code]/page.tsx
 import { redirect } from 'next/navigation';
 
-// Define the type for the props yourself
-interface PageProps {
-  params: {
-    code: string;
-  };
-}
-
-export default async function RedirectPage({ params }: PageProps) {
-  const { code } = params;
+export default async function RedirectPage({ params }: { params: Promise<{ code: string }> }) {
+  const resolvedParams = await params;
+  const { code } = resolvedParams;
 
   if (!code) redirect('/');
 
