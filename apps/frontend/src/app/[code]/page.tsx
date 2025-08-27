@@ -1,20 +1,10 @@
 // src/app/[code]/page.tsx
 import { redirect } from 'next/navigation';
 
-// Define your own props interface
-interface RedirectPageProps {
-  params: {
-    code: string;
-  };
-}
+export default async function RedirectPage({ params }: { params: { code: string } }) {
+  const { code } = params; // plain object, no await
 
-// Async server component
-export default async function RedirectPage({ params }: RedirectPageProps) {
-  const { code } = params; // params is plain object
-
-  if (!code) {
-    redirect('/');
-  }
+  if (!code) redirect('/');
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!backendUrl) throw new Error('NEXT_PUBLIC_BACKEND_URL not set');
@@ -24,21 +14,16 @@ export default async function RedirectPage({ params }: RedirectPageProps) {
   try {
     const res = await fetch(`${backendUrl}/${code}`, {
       method: 'GET',
-      redirect: 'manual', // do not follow redirects automatically
+      redirect: 'manual',
     });
     originalUrl = res.headers.get('location');
-  } catch (err) {
-    console.error('Fetch failed:', err);
+  } catch {
     redirect('/');
   }
 
-  if (!originalUrl) {
-    redirect('/');
-  }
+  if (!originalUrl) redirect('/');
 
-  // Perform the redirect
   redirect(originalUrl);
 
-  // Server component must return something
   return null;
 }
