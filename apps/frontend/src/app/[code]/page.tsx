@@ -1,40 +1,47 @@
+// src/app/[code]/page.tsx
 import { redirect } from 'next/navigation';
+import { ReactNode } from 'react';
 
-export default async function RedirectPage({ params }: { params: { code: string } }) {
-  const { code } = params;
+type RedirectPageProps = {
+  params: {
+    code: string;
+  };
+};
 
+export default async function RedirectPage({ params }: RedirectPageProps): Promise<ReactNode> {
+  const { code } = params; // params is a plain object, do NOT await
+
+  // If code is missing, redirect to homepage
   if (!code) {
     redirect('/');
   }
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!backendUrl) throw new Error('BACKEND_URL not set in environment');
+  if (!backendUrl) throw new Error('NEXT_PUBLIC_BACKEND_URL not set in environment');
 
-  let originalUrl = null;
+  let originalUrl: string | null = null;
 
   try {
-    // ONLY the fetch operation, which can fail, should be in the try block.
-    console.log(`Fetching from backend: ${backendUrl}/${code}`);
+    // Fetch the original URL from your backend
     const res = await fetch(`${backendUrl}/${code}`, {
       method: 'GET',
-      redirect: 'manual',
+      redirect: 'manual', // prevent automatic redirect following
     });
+
     originalUrl = res.headers.get('location');
-    console.log('Extracted originalUrl from header:', originalUrl);
-
   } catch (err) {
-    // This will now only catch genuine network errors from fetch().
-    console.error('Fetch operation failed:', err);
-    // If the fetch fails, we redirect to the homepage.
-    redirect('/');
+    console.error('Backend fetch failed:', err);
+    redirect('/'); // fallback
   }
 
-  // The redirect logic now lives OUTSIDE the try...catch.
+  // If the backend returned nothing, redirect to homepage
   if (!originalUrl) {
-    console.log('originalUrl is empty after fetch. Redirecting to /');
     redirect('/');
   }
 
-  console.log(`Redirecting to final destination: ${originalUrl}`);
+  // Redirect the user to the final destination
   redirect(originalUrl);
+
+  // Server Component must return something, null is fine for redirects
+  return null;
 }
